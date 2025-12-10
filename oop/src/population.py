@@ -107,9 +107,9 @@ class Population:
         return sum(fitnesses) / len(fitnesses)
     
     def get_fitness_stats(self) -> dict:
-        """Get statistics about the population's fitness."""
+        """Get statistics about the population's fitness. This is useful to save as a json later on"""
         fitnesses = [c.fitness for c in self._chromosomes if c.fitness is not None]
-        if not fitnesses:
+        if not fitnesses: #fallback in case no fitnesses are evaluated yet
             return {'min': 0, 'max': 0, 'avg': 0, 'best_ever': self._best_fitness}
         
         return {

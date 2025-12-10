@@ -1,5 +1,6 @@
 """
 Crossover strategy classes for genetic algorithm.
+Implementation checked
 """
 from abc import ABC, abstractmethod
 from typing import Tuple
@@ -78,82 +79,5 @@ class OnePointCrossover(CrossoverStrategy):
         
         offspring1_genes = genes1[:crossover_point] + genes2[crossover_point:]
         offspring2_genes = genes2[:crossover_point] + genes1[crossover_point:]
-        
-        return Chromosome(offspring1_genes), Chromosome(offspring2_genes)
-
-
-class TwoPointCrossover(CrossoverStrategy):
-    """
-    Two-point crossover strategy.
-    
-    Two random crossover points are selected, and genes between
-    the points are swapped.
-    """
-    
-    def crossover(self, parent1: Chromosome, parent2: Chromosome) -> Tuple[Chromosome, Chromosome]:
-        """
-        Perform two-point crossover.
-        
-        Args:
-            parent1: First parent chromosome.
-            parent2: Second parent chromosome.
-            
-        Returns:
-            Tuple of two offspring chromosomes.
-        """
-        if not self.should_crossover():
-            return parent1.copy(), parent2.copy()
-        
-        length = parent1.length
-        
-        # Select two random crossover points
-        point1 = random.randint(1, length - 2)
-        point2 = random.randint(point1 + 1, length - 1)
-        
-        genes1 = parent1.genes
-        genes2 = parent2.genes
-        
-        # Swap genes between the two points
-        offspring1_genes = genes1[:point1] + genes2[point1:point2] + genes1[point2:]
-        offspring2_genes = genes2[:point1] + genes1[point1:point2] + genes2[point2:]
-        
-        return Chromosome(offspring1_genes), Chromosome(offspring2_genes)
-
-
-class UniformCrossover(CrossoverStrategy):
-    """
-    Uniform crossover strategy.
-    
-    Each gene is independently chosen from one of the parents
-    with equal probability.
-    """
-    
-    def crossover(self, parent1: Chromosome, parent2: Chromosome) -> Tuple[Chromosome, Chromosome]:
-        """
-        Perform uniform crossover.
-        
-        Args:
-            parent1: First parent chromosome.
-            parent2: Second parent chromosome.
-            
-        Returns:
-            Tuple of two offspring chromosomes.
-        """
-        if not self.should_crossover():
-            return parent1.copy(), parent2.copy()
-        
-        genes1 = parent1.genes
-        genes2 = parent2.genes
-        
-        offspring1_genes = []
-        offspring2_genes = []
-        
-        for g1, g2 in zip(genes1, genes2):
-            if random.random() < 0.5:
-                offspring1_genes.append(g1)
-                offspring2_genes.append(g2)
-            else:
-                offspring1_genes.append(g2)
-                offspring2_genes.append(g1)
         
         return Chromosome(offspring1_genes), Chromosome(offspring2_genes)
