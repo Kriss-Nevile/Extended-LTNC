@@ -264,7 +264,7 @@ def run_ga(fitness_config: Dict,
     return {
         'problem': problem_name,
         'best_fitness': best_fitness,
-        'best_chromosome': best_chromosome,
+        # 'best_chromosome': best_chromosome,
         'optimal_fitness': optimal,
         'generations_run': len(history),
         'runtime_seconds': runtime,
