@@ -39,8 +39,8 @@ class TestChromosome(unittest.TestCase):
     
     def test_create_random_chromosome(self):
         """Test creating a random chromosome."""
-        rng = random.Random(42)
-        chrom = create_random_chromosome(50, rng)
+        seed = 42
+        chrom = create_random_chromosome(50, seed)
         self.assertEqual(len(chrom), 50)
         self.assertTrue(all(g in [0, 1] for g in chrom))
     
@@ -129,7 +129,7 @@ class TestSelection(unittest.TestCase):
     
     def setUp(self):
         """Set up test fixtures."""
-        self.rng = random.Random(42)
+        self.seed = 42
         # Create population with known fitness values
         self.population = tuple(
             (tuple([1] * i + [0] * (10 - i)), float(i))
@@ -138,14 +138,14 @@ class TestSelection(unittest.TestCase):
     
     def test_tournament_select(self):
         """Test tournament selection."""
-        selected = tournament_select(self.population, 3, self.rng)
+        selected = tournament_select(self.population, 3, self.seed)
         
         self.assertIsInstance(selected, tuple)
         self.assertEqual(len(selected), 10)
     
     def test_select_parents(self):
         """Test selecting multiple parents."""
-        parents = select_parents(self.population, 4, 3, self.rng)
+        parents = select_parents(self.population, 4, 3, self.seed)
         
         self.assertEqual(len(parents), 4)
         for parent in parents:
@@ -153,12 +153,13 @@ class TestSelection(unittest.TestCase):
     
     def test_tournament_favors_better(self):
         """Test that tournament selection favors better individuals."""
-        rng = random.Random(42)
-        
+        seed = 42
+
         selected_fitness = []
-        for _ in range(100):
-            winner = tournament_select(self.population, 3, rng)
-            # Find fitness of selected
+        for i in range(100):
+            # use a unique derived seed per draw so selections vary
+            winner = tournament_select(self.population, 3, seed + i)
+            # Find fitness of selected (sum of bits equals fitness in this setup)
             fitness = sum(winner)
             selected_fitness.append(fitness)
         
@@ -173,11 +174,11 @@ class TestCrossover(unittest.TestCase):
     
     def test_one_point_crossover(self):
         """Test one-point crossover."""
-        rng = random.Random(42)
+        seed = 42
         parent1 = tuple([1] * 10)
         parent2 = tuple([0] * 10)
         
-        offspring1, offspring2 = one_point_crossover(parent1, parent2, rng)
+        offspring1, offspring2 = one_point_crossover(parent1, parent2, seed)
         
         self.assertEqual(len(offspring1), 10)
         self.assertEqual(len(offspring2), 10)
@@ -188,25 +189,25 @@ class TestCrossover(unittest.TestCase):
     
     def test_crossover_with_probability(self):
         """Test crossover respects probability."""
-        rng = random.Random(42)
+        seed = 42
         parent1 = tuple([1] * 10)
         parent2 = tuple([0] * 10)
         
         # With 0 probability, should return copies
-        off1, off2 = crossover_pair(parent1, parent2, 0.0, rng)
+        off1, off2 = crossover_pair(parent1, parent2, 0.0, seed)
         self.assertEqual(off1, parent1)
         self.assertEqual(off2, parent2)
     
     def test_crossover_immutability(self):
         """Test that crossover doesn't modify parents."""
-        rng = random.Random(42)
+        seed = 42
         parent1 = tuple([1] * 10)
         parent2 = tuple([0] * 10)
         
         original_p1 = parent1
         original_p2 = parent2
         
-        one_point_crossover(parent1, parent2, rng)
+        one_point_crossover(parent1, parent2, seed)
         
         # Parents unchanged
         self.assertEqual(parent1, original_p1)
@@ -218,10 +219,10 @@ class TestMutation(unittest.TestCase):
     
     def test_bit_flip_mutate(self):
         """Test bit-flip mutation."""
-        rng = random.Random(42)
+        seed = 42
         original = tuple([0] * 100)
         
-        mutated = bit_flip_mutate(original, 0.1, rng)
+        mutated = bit_flip_mutate(original, 0.1, seed)
         
         # Some genes should have flipped
         ones_count = sum(mutated)
@@ -230,20 +231,20 @@ class TestMutation(unittest.TestCase):
     
     def test_mutation_immutability(self):
         """Test that mutation doesn't modify original."""
-        rng = random.Random(42)
+        seed = 42
         original = tuple([0] * 10)
         
-        mutated = bit_flip_mutate(original, 0.5, rng)
+        mutated = bit_flip_mutate(original, 0.5, seed)
         
         # Original unchanged
         self.assertEqual(original, tuple([0] * 10))
     
     def test_mutate_chromosome_function(self):
         """Test the standard mutation function."""
-        rng = random.Random(42)
+        seed = 42
         original = tuple([0] * 100)
         
-        mutated = mutate_chromosome(original, 100, rng)
+        mutated = mutate_chromosome(original, 100, seed)
         
         self.assertEqual(len(mutated), 100)
         self.assertIsInstance(mutated, tuple)
@@ -254,8 +255,8 @@ class TestPopulation(unittest.TestCase):
     
     def test_create_population(self):
         """Test population creation."""
-        rng = random.Random(42)
-        pop = create_population(20, 50, rng)
+        seed = 42
+        pop = create_population(20, 50, seed)
         
         self.assertEqual(len(pop), 20)
         for chrom in pop:
@@ -403,12 +404,11 @@ class TestIntegration(unittest.TestCase):
     
     def test_pure_functions_no_side_effects(self):
         """Test that functions don't have side effects."""
-        rng1 = random.Random(42)
-        rng2 = random.Random(42)
+        seed = 42
         
         # Create same chromosome twice
-        chrom1 = create_random_chromosome(10, rng1)
-        chrom2 = create_random_chromosome(10, rng2)
+        chrom1 = create_random_chromosome(10, seed)
+        chrom2 = create_random_chromosome(10, seed)
         
         self.assertEqual(chrom1, chrom2)
         
@@ -424,8 +424,8 @@ class TestFunctionalPatterns(unittest.TestCase):
     
     def test_immutable_data_structures(self):
         """Test that tuples are used for immutability."""
-        rng = random.Random(42)
-        pop = create_population(5, 10, rng)
+        seed = 42
+        pop = create_population(5, 10, seed)
         
         # Population is a tuple of tuples
         self.assertIsInstance(pop, tuple)
