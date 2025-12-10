@@ -102,7 +102,7 @@ python fp/tests/test_ga.py
 
 ### Important Note: Prioritizing Purity in FP
 
-I realized while coding that trying to use the same random object in both versions was causing issues. In OOP, letting the object update its own state works perfectly. But in the FP version, passing that mutable object around broke the rules of purity. I decided to prioritize clean code over identical results, the FP version uses manually passed seeds to ensure purity. This means the two implementations produce slightly different evolutionary paths, but it ensures the FP approach remains true to its paradigm.
+I realized while coding that trying to use the same random object in both versions was causing issues. In OOP, letting the object update its own state works perfectly. But in the FP version, passing that mutable object around broke the rules of purity and causes side effects. I decided to prioritize clean code over identical results, the FP version uses manually passed seeds to ensure purity. This means the two implementations produce slightly different evolutionary paths, but it ensures the FP approach remains true to its paradigm.
 
 ### In particular:
 
@@ -175,17 +175,16 @@ Every function that requires randomness accepts a `seed: int` parameter instead 
 
 Building this Genetic Algorithm in both paradigms really highlighted their differences. Particularly:
 
-- OOP (The Intuitive Choice):
-This approach felt the most natural for a simulation. A chromosome behaves like an object, so grouping its genes and fitness together just made sense. The structure was easy to organize, and design patterns let me swap out mutation or crossover strategies without touching the rest of the system.
+- OOP (More familiar choice):
+This approach felt the most natural for a simulation. A chromosome behaves like an object, so grouping its genes and fitness together just made sense. The structure was easy to organize, and design patterns let me swap out mutation or crossover strategies without touching the rest of the system. Coding in imperative styles also adds some familiarity points.
 
-- FP (The Safe Choice):
-The FP version was all about reliability. With every function being pure, I never had to worry about hidden side effects or unexpected state changes. If a function worked once, it would always work. The immutability enforced a kind of rigor that made the whole flow of logic feel clean and predictable.
+- FP (the safer way):
+The FP version I can say is more about reliability. With every function being pure, I never have to worry about hidden side effects or unexpected state changes. If a function worked once, it would always work. The immutability enforced a kind of rigor that made the whole flow feels predictable.
 
 The Randomness Trade-off:
-Randomness was the biggest contrast between the two. In OOP, it was effortless—just let a shared random generator evolve naturally. In FP, staying pure meant explicitly threading seeds through functions. It required more boilerplate, but the payoff was perfect reproducibility and isolation.
+Randomness was the biggest contrast between the two. In OOP, it was effortless—just let a shared random generator evolve naturally. In FP, staying pure meant explicitly threading seeds through functions. It required explcit handling, but the payoff was perfect reproducibility and isolation.
 
-Final Verdict:
-For a production-ready library, I’d pick OOP for its flexibility and maintainability. But if the goal is mathematical clarity and minimizing bugs, the discipline of FP is hard to beat. Both paradigms worked well—they just operate under different rules.
+ In the end, I’d pick OOP for its flexibility and simply because i'm more familiar with imperative style programming. But if the goal is mathematical clarity and to be less error prone, FP is a good choice. Both paradigms offer different advatages.
 
 ## Output Files
 
