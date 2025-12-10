@@ -61,30 +61,3 @@ def crossover_pair(parent1: Chromosome,
     else:
         # Return copies (tuples are immutable, so same reference is fine)
         return parent1, parent2
-
-# was this used?
-def two_point_crossover(parent1: Chromosome,
-                        parent2: Chromosome,
-                        seed: int) -> Tuple[Chromosome, Chromosome]:
-    """
-    Perform two-point crossover on two parent chromosomes.
-    
-    Pure function - creates its own RNG from seed.
-    
-    Args:
-        parent1: First parent chromosome.
-        parent2: Second parent chromosome.
-        seed: Random seed for reproducibility.
-        
-    Returns:
-        Tuple of two offspring chromosomes.
-    """
-    rng = random.Random(seed)
-    length = len(parent1)
-    point1 = rng.randint(1, length - 2)
-    point2 = rng.randint(point1 + 1, length - 1)
-    
-    offspring1 = parent1[:point1] + parent2[point1:point2] + parent1[point2:]
-    offspring2 = parent2[:point1] + parent1[point1:point2] + parent2[point2:]
-    
-    return offspring1, offspring2

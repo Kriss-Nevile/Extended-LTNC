@@ -72,7 +72,7 @@ def run_onemax():
     
     # Configuration
     chromosome_length = 100
-    seed = 42
+    seed = 42 # None is not supported
     
     # Create fitness configuration
     fitness_config = create_onemax_fitness(length=chromosome_length)
@@ -106,7 +106,7 @@ def run_knapsack():
     
     # Configuration
     n_items = 100
-    seed = 42
+    seed = 42 # None is not supported
     
     # Create fitness configuration (includes problem data)
     fitness_config = create_knapsack_problem(n_items=n_items, seed=seed)
