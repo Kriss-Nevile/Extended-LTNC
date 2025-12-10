@@ -18,21 +18,22 @@ Population = Tuple[Individual, ...]
 
 def tournament_select(population: Population, 
                       tournament_size: int, 
-                      rng: random.Random) -> Chromosome:
+                      seed: int) -> Chromosome:
     """
     Select one chromosome using tournament selection.
     
     Selects k random individuals and returns the best one.
-    This is a pure function (given the same RNG state).
+    Pure function - creates its own RNG from seed.
     
     Args:
         population: Tuple of (chromosome, fitness) pairs.
         tournament_size: Number of individuals in tournament.
-        rng: Random number generator.
+        seed: Random seed for reproducibility.
         
     Returns:
         The winning chromosome.
     """
+    rng = random.Random(seed)
     # Randomly sample tournament participants
     tournament_indices = [rng.randrange(len(population)) for _ in range(tournament_size)]
     tournament = [population[i] for i in tournament_indices]
@@ -45,74 +46,46 @@ def tournament_select(population: Population,
 def select_parents(population: Population,
                    num_parents: int,
                    tournament_size: int,
-                   rng: random.Random) -> Tuple[Chromosome, ...]:
+                   seed: int) -> Tuple[Chromosome, ...]:
     """
     Select multiple parents using tournament selection.
     
     Uses map to apply selection repeatedly.
+    Pure function - creates unique seeds for each selection.
     
     Args:
         population: Tuple of (chromosome, fitness) pairs.
         num_parents: Number of parents to select.
         tournament_size: Tournament size for each selection.
-        rng: Random number generator.
+        seed: Random seed for reproducibility.
         
     Returns:
         Tuple of selected parent chromosomes.
     """
-    # Use list comprehension (more Pythonic than map for this case)
+    # Use list comprehension with unique seeds for each selection
     parents = tuple(
-        tournament_select(population, tournament_size, rng)
-        for _ in range(num_parents)
+        tournament_select(population, tournament_size, seed + i)
+        for i in range(num_parents)
     )
     return parents
 
 
 def select_pair(population: Population,
                 tournament_size: int,
-                rng: random.Random) -> Tuple[Chromosome, Chromosome]:
+                seed: int) -> Tuple[Chromosome, Chromosome]:
     """
     Select a pair of parents for crossover.
+    
+    Pure function - creates unique seeds for each parent selection.
     
     Args:
         population: Tuple of (chromosome, fitness) pairs.
         tournament_size: Tournament size.
-        rng: Random number generator.
+        seed: Random seed for reproducibility.
         
     Returns:
         Tuple of two parent chromosomes.
     """
-    parent1 = tournament_select(population, tournament_size, rng)
-    parent2 = tournament_select(population, tournament_size, rng)
+    parent1 = tournament_select(population, tournament_size, seed)
+    parent2 = tournament_select(population, tournament_size, seed + 1)
     return parent1, parent2
-
-
-def roulette_select(population: Population, rng: random.Random) -> Chromosome:
-    """
-    Select one chromosome using roulette wheel selection.
-    
-    Selection probability is proportional to fitness.
-    
-    Args:
-        population: Tuple of (chromosome, fitness) pairs.
-        rng: Random number generator.
-        
-    Returns:
-        The selected chromosome.
-    """
-    total_fitness = sum(ind[1] for ind in population)
-    
-    if total_fitness <= 0:
-        # If all fitness values are 0, use uniform random selection
-        return population[rng.randrange(len(population))][0]
-    
-    pick = rng.uniform(0, total_fitness)
-    current = 0.0
-    
-    for chromosome, fitness in population:
-        current += fitness
-        if current >= pick:
-            return chromosome
-    
-    # Fallback: return last chromosome
-    return population[-1][0]

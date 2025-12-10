@@ -57,54 +57,55 @@ def create_ga_config(chromosome_length: int = 100,
 
 def create_offspring(population: Population,
                      config: Dict,
-                     rng: random.Random) -> Tuple[Chromosome, Chromosome]:
+                     seed: int) -> Tuple[Chromosome, Chromosome]:
     """
     Create two offspring from the population.
     
     Applies selection, crossover, and mutation.
-    This is a pure function (given the RNG state).
+    Pure function - creates unique seeds for each operation.
     
     Args:
         population: Current population.
         config: GA configuration.
-        rng: Random number generator.
+        seed: Random seed for reproducibility.
         
     Returns:
         Tuple of two offspring chromosomes.
     """
-    # Selection
+    # Selection (uses seed and seed+1 internally)
     parent1, parent2 = select_pair(
         population, 
         config['tournament_size'], 
-        rng
+        seed
     )
     
     # Crossover
     offspring1, offspring2 = crossover_pair(
         parent1, parent2,
         config['crossover_prob'],
-        rng
+        seed + 2
     )
     
-    # Mutation
-    offspring1 = bit_flip_mutate(offspring1, config['mutation_prob'], rng)
-    offspring2 = bit_flip_mutate(offspring2, config['mutation_prob'], rng)
+    # Mutation (use different seeds for each offspring)
+    offspring1 = bit_flip_mutate(offspring1, config['mutation_prob'], seed + 3)
+    offspring2 = bit_flip_mutate(offspring2, config['mutation_prob'], seed + 4)
     
     return offspring1, offspring2
 
 
 def create_next_generation(population: Population,
                            config: Dict,
-                           rng: random.Random) -> Tuple[Chromosome, ...]:
+                           seed: int) -> Tuple[Chromosome, ...]:
     """
     Create the next generation of chromosomes.
     
     Uses elitism and creates offspring to fill the population.
+    Pure function - creates unique seeds for each offspring pair.
     
     Args:
         population: Current population with fitness.
         config: GA configuration.
-        rng: Random number generator.
+        seed: Random seed for reproducibility.
         
     Returns:
         Tuple of chromosomes for next generation.
@@ -115,14 +116,17 @@ def create_next_generation(population: Population,
     # Preserve elite individuals
     elite = get_elite(population, elitism)
     
-    # Generate offspring
+    # Generate offspring with unique seeds for each pair
     offspring = list(elite)
+    pair_index = 0
     
     while len(offspring) < pop_size:
-        child1, child2 = create_offspring(population, config, rng)
+        # Each offspring pair gets a unique seed offset (5 operations per pair)
+        child1, child2 = create_offspring(population, config, seed + pair_index * 5)
         offspring.append(child1)
         if len(offspring) < pop_size:
             offspring.append(child2)
+        pair_index += 1
     
     return tuple(offspring)
 
@@ -130,23 +134,24 @@ def create_next_generation(population: Population,
 def run_generation(population: Population,
                    fitness_func: Callable[[Chromosome], float],
                    config: Dict,
-                   rng: random.Random) -> Population:
+                   seed: int) -> Population:
     """
     Run one generation of the GA.
     
     Creates next generation and evaluates fitness.
+    Pure function - uses seed for all random operations.
     
     Args:
         population: Current population with fitness.
         fitness_func: Function to evaluate chromosomes.
         config: GA configuration.
-        rng: Random number generator.
+        seed: Random seed for reproducibility.
         
     Returns:
         New population with fitness values.
     """
     # Create next generation chromosomes
-    next_gen_chromosomes = create_next_generation(population, config, rng)
+    next_gen_chromosomes = create_next_generation(population, config, seed)
     
     # Evaluate the new population
     return evaluate_population(next_gen_chromosomes, fitness_func)
@@ -173,8 +178,8 @@ def run_ga(fitness_config: Dict,
     if ga_config is None:
         ga_config = create_ga_config()
     
-    # Initialize random number generator
-    rng = random.Random(ga_config['seed'])
+    # Base seed for all random operations
+    base_seed = ga_config['seed']
     
     # Extract fitness function
     fitness_func = fitness_config['evaluate']
@@ -183,11 +188,11 @@ def run_ga(fitness_config: Dict,
     
     start_time = time.time()
     
-    # Create initial population
+    # Create initial population (each chromosome gets unique seed)
     chromosomes = create_population(
         ga_config['population_size'],
         ga_config['chromosome_length'],
-        rng
+        base_seed
     )
     
     # Evaluate initial population
@@ -216,8 +221,9 @@ def run_ga(fitness_config: Dict,
     
     # Main evolution loop
     for generation in range(1, ga_config['max_generations'] + 1):
-        # Create next generation
-        population = run_generation(population, fitness_func, ga_config, rng)
+        # Create next generation with unique seed per generation
+        generation_seed = base_seed + generation * 10000
+        population = run_generation(population, fitness_func, ga_config, generation_seed)
         
         # Update best
         current_best = get_best(population)

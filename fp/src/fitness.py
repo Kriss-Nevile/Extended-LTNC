@@ -1,10 +1,9 @@
 """
 Fitness functions for the Functional Programming GA implementation.
-
-All functions are pure - they compute fitness without side effects.
 """
 from typing import Tuple, Dict, Callable
 import random
+from functools import reduce
 
 from .chromosome import Chromosome
 
@@ -86,7 +85,7 @@ def create_knapsack_problem(n_items: int, seed: int = 42) -> Dict:
     Returns:
         Dictionary with fitness function and problem data.
     """
-    rng = random.Random(seed)
+    rng = random.Random(seed)   
     
     # Generate random values and weights as immutable tuples
     values = tuple(rng.randint(1, 100) for _ in range(n_items))
@@ -127,21 +126,23 @@ def _greedy_knapsack_approximation(values: Tuple[int, ...],
     Returns:
         Approximate optimal value.
     """
-    n = len(values)
-    ratios = sorted(
-        [(values[i] / weights[i], i) for i in range(n)],
+    # Sort items by value-to-weight ratio (descending)
+    ratios = tuple(sorted(
+        [(values[i] / weights[i], i) for i in range(len(values))],
         reverse=True
-    )
+    ))
     
-    total_value = 0
-    total_weight = 0
-    
-    for _, i in ratios:
+    def add_item(acc: Tuple[int, int], ratio_index: Tuple[float, int]) -> Tuple[int, int]:
+        total_value, total_weight = acc
+        _, i = ratio_index
+        
         if total_weight + weights[i] <= capacity:
-            total_value += values[i]
-            total_weight += weights[i]
+            return (total_value + values[i], total_weight + weights[i])
+        return acc
     
-    return float(total_value)
+    final_value, _ = reduce(add_item, ratios, (0, 0))
+    
+    return float(final_value)
 
 
 def get_solution_details(chromosome: Chromosome,

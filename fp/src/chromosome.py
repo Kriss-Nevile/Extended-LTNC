@@ -25,17 +25,20 @@ def create_chromosome(genes: Tuple[int, ...]) -> Chromosome:
     return tuple(genes)
 
 
-def create_random_chromosome(length: int, rng: random.Random) -> Chromosome:
+def create_random_chromosome(length: int, seed: int) -> Chromosome:
     """
     Create a random chromosome of given length.
     
+    Pure function - creates its own RNG from seed.
+    
     Args:
         length: Number of genes in the chromosome.
-        rng: Random number generator for reproducibility.
+        seed: Random seed for reproducibility.
         
     Returns:
         A random chromosome.
     """
+    rng = random.Random(seed)
     return tuple(rng.randint(0, 1) for _ in range(length))
 
 

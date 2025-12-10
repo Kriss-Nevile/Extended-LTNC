@@ -18,21 +18,23 @@ Population = Tuple[Individual, ...]
 
 def create_population(size: int, 
                       chromosome_length: int, 
-                      rng: random.Random) -> Tuple[Chromosome, ...]:
+                      seed: int) -> Tuple[Chromosome, ...]:
     """
     Create a random population of chromosomes.
+    
+    Pure function - creates unique seeds for each chromosome.
     
     Args:
         size: Number of individuals.
         chromosome_length: Length of each chromosome.
-        rng: Random number generator.
+        seed: Random seed for reproducibility.
         
     Returns:
         Tuple of chromosomes.
     """
     return tuple(
-        create_random_chromosome(chromosome_length, rng)
-        for _ in range(size)
+        create_random_chromosome(chromosome_length, seed + i)
+        for i in range(size)
     )
 
 
