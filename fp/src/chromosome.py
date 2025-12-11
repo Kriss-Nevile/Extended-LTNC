@@ -1,7 +1,7 @@
 """
 Chromosome functions for the Functional Programming GA implementation.
 
-All functions are pure - they don't modify their inputs and have no side effects.
+All functions are pure they don't modify their inputs and have no side effects. (Using seeds for randomness.)
 Chromosomes are represented as immutable tuples.
 """
 from typing import Tuple, Optional

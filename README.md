@@ -63,7 +63,7 @@ Extended-LTNC/
 git clone https://github.com/Kriss-Nevile/Extended-LTNC
 cd Extended-LTNC
 
-# Optional: Install matplotlib for plots
+# Install matplotlib for plots
 pip install matplotlib
 ```
 
