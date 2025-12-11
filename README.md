@@ -77,9 +77,8 @@ python oop/run.py
 python fp/run.py
 ```
 
-### Running Tests
+### Running Unit Tests
 ```bash
-# Or using unittest
 python oop/tests/test_ga.py
 python fp/tests/test_ga.py
 ```
