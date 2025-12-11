@@ -104,6 +104,8 @@ python fp/tests/test_ga.py
 
 I realized while coding that trying to use the same random object in both versions was causing issues. In OOP, letting the object update its own state works perfectly. But in the FP version, passing that mutable object around broke the rules of purity and causes side effects. I decided to prioritize clean code over identical results, the FP version uses manually passed seeds to ensure purity. This means the two implementations produce slightly different evolutionary paths, but it ensures the FP approach remains true to its paradigm.
 
+Though the process might be different, I've made sure that for the same seed and configurations the starting conditions for both FP and OOP approach will be the same
+
 ### In particular:
 
 - **OOP Approach:**  
@@ -120,6 +122,7 @@ To maintain diversity across multiple random operations (e.g., selecting many pa
 **Trade-off:**  
 This design choice means the OOP and FP versions, while starting from the same initial seed and using identical GA parameters, will produce slightly different evolutionary trajectories. The OOP version's RNG state evolves as a single continuous stream, while the FP version creates independent RNG streams for each operation. Both approaches are valid and produce comparable results, but the difference illustrates a fundamental paradigm distinction: stateful evolution vs. pure transformation.
 
+---
 ### OOP Design
 
 The OOP implementation follows classic object-oriented design patterns:
@@ -157,7 +160,7 @@ The FP implementation follows functional programming principles:
 - Population: `Tuple[Tuple[Chromosome, float], ...]` - tuples of (chromosome, fitness) pairs
 
 
-**Purity Through Seed Management:**
+**Seed Control:**
 Every function that requires randomness accepts a `seed: int` parameter instead of a mutable `Random` object. Inside each function, a fresh `random.Random(seed)` instance is created, used, and discarded. This approach ensures:
 - No hidden state mutations
 - With this each function can be tested in isolation without RNG state concerns
@@ -171,6 +174,7 @@ Every function that requires randomness accepts a `seed: int` parameter instead 
 - `bit_flip_mutate(chromosome, mutation_prob, seed)` - mutation with seed
 - `run_ga()` - main algorithm coordinator that derives unique seeds per generation
 
+---
 ## Comparison: OOP vs FP
 
 Building this Genetic Algorithm in both paradigms really highlighted their differences. Particularly:
@@ -184,7 +188,7 @@ The FP version I can say is more about reliability. With every function being pu
 The Randomness Trade-off:
 Randomness was the biggest contrast between the two. In OOP, it was effortless—just let a shared random generator evolve naturally. In FP, staying pure meant explicitly threading seeds through functions. It required explcit handling, but the payoff was perfect reproducibility and isolation.
 
- In the end, I’d pick OOP for its flexibility and simply because i'm more familiar with imperative style programming. But if the goal is mathematical clarity and to be less error prone, FP is a good choice. Both paradigms offer different advatages.
+ In the end, I’d pick OOP for its flexibility and simply because i'm more familiar with imperative style programming. But if the goal is clarity and to be less error prone, FP is a good choice. Both paradigms offer different advatages.
 
 ## Output Files
 

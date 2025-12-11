@@ -5,7 +5,7 @@
     "best_fitness": 100.0,
     "optimal_fitness": 100.0,
     "generations_run": 27,
-    "runtime_seconds": 0.13267087936401367,
+    "runtime_seconds": 0.13319730758666992,
     "history": [
       {
         "generation": 0,
@@ -213,7 +213,7 @@
     "best_fitness": 3394.0,
     "optimal_fitness": 3412.0,
     "generations_run": 301,
-    "runtime_seconds": 1.935182809829712,
+    "runtime_seconds": 1.9351568222045898,
     "history": [
       {
         "generation": 0,
